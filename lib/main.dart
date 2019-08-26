@@ -9,21 +9,17 @@ import 'package:particles/helper_dialog.dart';
 
 List<Star> stars;
 
-const double viewportSize = 400;
-// const int numStars = 100;
 const double mass = 1;
 
 /// pixel distance at which force won't apply
 const int shield = 1;
 
 /// Constant to control how stong the force is. Higher effectively means faster.
+/// In a "real" simulation, this would be 6.67430 * 10^−11.
 const double gravConstant = 2;
 
 /// Size of the star icon
 const double starSize = 18.0;
-
-/// Speed.
-const double speed = 0.75;
 
 // void main() => runApp(MyApp());
 void main() => runApp(MaterialApp(
@@ -48,8 +44,9 @@ class ConfigState extends State<Config> {
 
   double inputNumberParticles = 100;
   double inputDurationSeconds = 20;
-  bool hasCenterMass = false;
-  double centerMassMass = 1;
+  bool inputHasCenterMass = false;
+  double inputCenterMass = 1;
+  double inputSpeed = 0.05;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +70,7 @@ class ConfigState extends State<Config> {
                         "slow down quickly. Anecdotally, ~1,000 is the max for a " +
                         "reasonable animation."),
                 Text("Number of points: "),
+                Spacer(flex: 1),
                 Slider(
                   value: inputNumberParticles,
                   min: countMin,
@@ -95,6 +93,7 @@ class ConfigState extends State<Config> {
                 HelperDialog(
                     text: "How long should the animation last. Unit: seconds."),
                 Text("Duration (seconds): "),
+                Spacer(flex: 1),
                 Slider(
                   value: inputDurationSeconds,
                   min: durationMin,
@@ -105,12 +104,12 @@ class ConfigState extends State<Config> {
                     });
                   },
                   label: "${inputDurationSeconds.toInt()}",
-                  divisions: (durationMax-1).toInt(),
+                  divisions: (durationMax - 1).toInt(),
                 ),
               ],
             ),
 
-            // Check center mass?
+            // Has center mass?
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -119,11 +118,12 @@ class ConfigState extends State<Config> {
                         "Enabling this option will create a single point at the " +
                         "center of the viewport with a unique mass (see next option)."),
                 Text("Has center mass?: "),
+                Spacer(flex: 1),
                 Checkbox(
-                  value: hasCenterMass,
+                  value: inputHasCenterMass,
                   onChanged: (bool value) {
                     setState(() {
-                      hasCenterMass = value;
+                      inputHasCenterMass = value;
                     });
                   },
                 )
@@ -141,23 +141,50 @@ class ConfigState extends State<Config> {
                 Text(
                   "Center mass's mass?: ",
                   style: TextStyle(
-                      color: hasCenterMass
+                      color: inputHasCenterMass
                           ? Colors.black
                           : Theme.of(context).primaryColorDark.withAlpha(0x52)),
                 ),
+                Spacer(flex: 1),
                 Slider(
-                  value: centerMassMass,
+                  value: inputCenterMass,
                   min: 1.0,
                   max: 100.0,
-                  onChanged: hasCenterMass
+                  onChanged: inputHasCenterMass
                       ? (double value) {
                           setState(() {
-                            centerMassMass = value;
+                            inputCenterMass = value;
                           });
                         }
                       : null,
-                  label: "${centerMassMass.toInt()}",
+                  label: "${inputCenterMass.toInt()}",
                   divisions: 99,
+                ),
+              ],
+            ),
+
+            // Speed of animation.
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                HelperDialog(
+                  text: "Defines how fast the animation runs. In terms of the " +
+                      "calculations, this is a multiplier on how much force each " +
+                      "point applies on each other one.",
+                ),
+                Text("Speed: "),
+                Spacer(flex: 1),
+                Slider(
+                  value: inputSpeed,
+                  min: 0.005,
+                  max: 0.1,
+                  onChanged: (double value) {
+                    setState(() {
+                      inputSpeed = value;
+                    });
+                  },
+                  label: "${(inputSpeed * 100).toStringAsFixed(1)}",
+                  divisions: 19,
                 ),
               ],
             ),
@@ -167,12 +194,14 @@ class ConfigState extends State<Config> {
               child: Text("Go"),
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => Particles(
-                          numParticles: inputNumberParticles.floor(),
-                          seconds: inputDurationSeconds.floor(),
-                          useCenterMass: hasCenterMass,
-                          centerMassWeight: centerMassMass,
-                        )));
+                  builder: (context) => Particles(
+                    numParticles: inputNumberParticles.floor(),
+                    seconds: inputDurationSeconds.floor(),
+                    useCenterMass: inputHasCenterMass,
+                    centerMassWeight: inputCenterMass,
+                    speed: inputSpeed,
+                  ),
+                ));
               },
             )
           ],
@@ -187,13 +216,15 @@ class Particles extends StatefulWidget {
   final int seconds;
   final double centerMassWeight;
   final bool useCenterMass;
+  final double speed;
 
   const Particles(
       {Key key,
       this.numParticles,
       this.seconds,
       this.centerMassWeight,
-      this.useCenterMass})
+      this.useCenterMass,
+      this.speed})
       : super(key: key);
 
   @override
@@ -202,6 +233,9 @@ class Particles extends StatefulWidget {
 
 class ParticlesState extends State<Particles>
     with SingleTickerProviderStateMixin {
+  /// Used mainly to determine starting locations. I'm sure there's a better way to do this.
+  final double viewportSize = 400;
+
   List<Animation<Point<double>>> animations;
   AnimationController controller;
 
@@ -233,7 +267,8 @@ class ParticlesState extends State<Particles>
     );
 
     animations = List.generate(widget.numParticles, (index) {
-      return MyAnimatable(id: index, numStars: widget.numParticles)
+      return MyAnimatable(
+              id: index, numStars: widget.numParticles, speed: widget.speed)
           .animate(controller);
     });
 
@@ -313,8 +348,9 @@ class AnimatedStar extends AnimatedWidget {
 class MyAnimatable extends Animatable<Point<double>> {
   final int id;
   final int numStars;
+  final double speed;
 
-  MyAnimatable({this.id, this.numStars});
+  MyAnimatable({this.id, this.numStars, this.speed});
 
   // As I understand it, transform is given (nominally), the % through the animation that we are.
   @override
