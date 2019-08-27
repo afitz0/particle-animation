@@ -11,6 +11,7 @@ class Particles extends StatefulWidget {
   final double centerMassWeight;
   final bool useCenterMass;
   final double speed;
+  final double mass;
 
   const Particles(
       {Key key,
@@ -18,7 +19,8 @@ class Particles extends StatefulWidget {
       this.seconds,
       this.centerMassWeight,
       this.useCenterMass,
-      this.speed})
+      this.speed,
+      this.mass})
       : super(key: key);
 
   @override
@@ -44,12 +46,13 @@ class ParticlesState extends State<Particles>
       stars[0] = Star()
         ..mass = widget.centerMassWeight
         ..location = Point(viewportSize / 2, viewportSize / 2)
-        ..velocity = Point(0, 0);
+        ..velocity = Point(0, 0)
+        ..isStationary = true;
     }
 
     for (int i = widget.useCenterMass ? 1 : 0; i < widget.numParticles; i++) {
       stars[i] = Star()
-        ..mass = mass
+        ..mass = widget.mass
         ..location = Point(random.nextDouble() * viewportSize,
             random.nextDouble() * viewportSize)
         ..velocity = Point(0, 0);

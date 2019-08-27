@@ -4,8 +4,6 @@ import 'package:particles/star.dart';
 
 List<Star> stars;
 
-const double mass = 1;
-
 /// pixel distance at which force won't apply
 const int shield = 0;
 

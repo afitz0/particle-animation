@@ -15,6 +15,9 @@ class NBodyAnimator extends Animatable<Point<double>> {
   @override
   Point<double> transform(double t) {
     Point currentLocation = stars[id].location;
+    if (stars[id].isStationary) {
+      return currentLocation;
+    }
 
     for (int i = 0; i < numStars; i++) {
       if (i == id) continue;
