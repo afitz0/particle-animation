@@ -33,6 +33,7 @@ class ParticlesState extends State<Particles>
   /// Used mainly to determine starting locations. I'm sure there's a better way to do this.
   final double viewportSize = 400;
 
+  Timer _timer;
   int _elapsedSeconds;
 
   List<Animation<Point<double>>> animations;
@@ -76,7 +77,7 @@ class ParticlesState extends State<Particles>
     _elapsedSeconds = 0;
 
     const singleSecond = Duration(seconds: 1);
-    Timer.periodic(singleSecond, (timer) {
+    _timer = Timer.periodic(singleSecond, (timer) {
       setState(() {
         if (_elapsedSeconds >= widget.seconds) {
           timer.cancel();
@@ -136,6 +137,7 @@ class ParticlesState extends State<Particles>
   @override
   void dispose() {
     controller.dispose();
+    _timer.cancel();
     super.dispose();
   }
 }
