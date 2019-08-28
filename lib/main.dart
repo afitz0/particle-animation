@@ -49,7 +49,10 @@ class ConfigState extends State<Config> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text("Creates an animation that approximates an N-Body simulation."),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Text("Creates an animation that approximates an N-Body simulation."),
+            ),
 
             // Point quantity?
             Row(

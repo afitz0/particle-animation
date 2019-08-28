@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -31,6 +32,8 @@ class ParticlesState extends State<Particles>
     with SingleTickerProviderStateMixin {
   /// Used mainly to determine starting locations. I'm sure there's a better way to do this.
   final double viewportSize = 400;
+
+  int _elapsedSeconds;
 
   List<Animation<Point<double>>> animations;
   AnimationController controller;
@@ -70,6 +73,18 @@ class ParticlesState extends State<Particles>
     });
 
     controller.forward();
+    _elapsedSeconds = 0;
+
+    const singleSecond = Duration(seconds: 1);
+    Timer.periodic(singleSecond, (timer) {
+      setState(() {
+        if (_elapsedSeconds >= widget.seconds) {
+          timer.cancel();
+        } else {
+          _elapsedSeconds++;
+        }
+      });
+    });
   }
 
   @override
@@ -80,7 +95,8 @@ class ParticlesState extends State<Particles>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("${widget.numParticles} Particles"),
+        // title: Text("${widget.numParticles} Particles"),
+        title: Text("Black Holy Cow"),
         backgroundColor: Colors.white24,
       ),
       backgroundColor: Colors.black,
@@ -102,7 +118,7 @@ class ParticlesState extends State<Particles>
                           style: TextStyle(color: Colors.white),
                         ),
                         Text(
-                          "Duration (seconds): ${widget.seconds}",
+                          "Duration: $_elapsedSeconds of ${widget.seconds} seconds",
                           style: TextStyle(color: Colors.white),
                         ),
                       ],
@@ -139,7 +155,7 @@ class AnimatedStar extends AnimatedWidget {
       // TODO make this a configurable option.
       // child: Text(
       //   "🐄",
-      //   style: TextStyle(fontSize: 48),
+      //   style: TextStyle(fontSize: starSize),
       // ),
       left: animation.value.x,
       bottom: animation.value.y,
