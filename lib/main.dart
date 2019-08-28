@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:particles/helper_dialog.dart';
+import 'package:particles/holy_cow.dart';
 import 'package:particles/particles.dart';
 
 void main() => runApp(MaterialApp(
@@ -51,7 +52,8 @@ class ConfigState extends State<Config> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Text("Creates an animation that approximates an N-Body simulation."),
+              child: Text(
+                  "Creates an animation that approximates an N-Body simulation."),
             ),
 
             // Point quantity?
@@ -182,14 +184,14 @@ class ConfigState extends State<Config> {
                 ),
               ],
             ),
-            
+
             // Speed of animation.
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 HelperDialog(
                   text: "Defines how fast the animation runs. The speed is implemented " +
-                  "as a multiplier of how much force is applied to each object.",
+                      "as a multiplier of how much force is applied to each object.",
                 ),
                 Text("Speed: "),
                 Spacer(flex: 1),
@@ -208,21 +210,27 @@ class ConfigState extends State<Config> {
               ],
             ),
 
-            // Go button
-            RaisedButton(
-              child: Text("Go"),
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => Particles(
-                    numParticles: inputNumberParticles.floor(),
-                    seconds: inputDurationSeconds.floor(),
-                    useCenterMass: inputHasCenterObject,
-                    centerMassWeight: inputCenterMass,
-                    speed: inputSpeed,
-                    mass: inputMass,
-                  ),
-                ));
-              },
+            // Go button(s)
+            Stack(
+              children: <Widget>[
+                
+                RaisedButton(
+                  child: Text("Go"),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => Particles(
+                        numParticles: inputNumberParticles.floor(),
+                        seconds: inputDurationSeconds.floor(),
+                        useCenterMass: inputHasCenterObject,
+                        centerMassWeight: inputCenterMass,
+                        speed: inputSpeed,
+                        mass: inputMass,
+                      ),
+                    ));
+                  },
+                ),
+                HolyCow(),
+              ],
             )
           ],
         ),

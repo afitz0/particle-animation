@@ -13,6 +13,7 @@ class Particles extends StatefulWidget {
   final bool useCenterMass;
   final double speed;
   final double mass;
+  final bool isCowLevel;
 
   const Particles(
       {Key key,
@@ -21,7 +22,8 @@ class Particles extends StatefulWidget {
       this.centerMassWeight,
       this.useCenterMass,
       this.speed,
-      this.mass})
+      this.mass,
+      this.isCowLevel = false})
       : super(key: key);
 
   @override
@@ -91,13 +93,17 @@ class ParticlesState extends State<Particles>
   @override
   Widget build(BuildContext context) {
     List<Widget> stars = List.generate(widget.numParticles, (index) {
-      return AnimatedStar(animation: animations[index], id: index);
+      return AnimatedStar(
+          animation: animations[index],
+          id: index,
+          isCowLevel: widget.isCowLevel);
     });
 
     return Scaffold(
       appBar: AppBar(
-        // title: Text("${widget.numParticles} Particles"),
-        title: Text("Black Holy Cow"),
+        title: Text(widget.isCowLevel
+            ? "Black Holy Cow"
+            : "${widget.numParticles} Particles"),
         backgroundColor: Colors.white24,
       ),
       backgroundColor: Colors.black,
@@ -143,22 +149,25 @@ class ParticlesState extends State<Particles>
 }
 
 class AnimatedStar extends AnimatedWidget {
-  AnimatedStar({Key key, Animation<Point<double>> animation, int id})
+  final bool isCowLevel;
+
+  AnimatedStar(
+      {Key key, Animation<Point<double>> animation, int id, this.isCowLevel})
       : super(key: key, listenable: animation);
 
   Widget build(BuildContext context) {
     final Animation<Point<double>> animation = listenable;
     return Positioned(
-      child: Icon(
-        Icons.star,
-        color: Colors.white,
-        size: starSize,
-      ),
-      // TODO make this a configurable option.
-      // child: Text(
-      //   "🐄",
-      //   style: TextStyle(fontSize: starSize),
-      // ),
+      child: isCowLevel
+          ? Text(
+              "🐄",
+              style: TextStyle(fontSize: starSize),
+            )
+          : Icon(
+              Icons.star,
+              color: Colors.white,
+              size: starSize,
+            ),
       left: animation.value.x,
       bottom: animation.value.y,
     );
