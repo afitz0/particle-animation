@@ -11,7 +11,6 @@ class NBodyAnimator extends Animatable<Point<double>> {
 
   NBodyAnimator({this.id, this.numStars, this.speed});
 
-  // As I understand it, transform is given (nominally), the % through the animation that we are.
   @override
   Point<double> transform(double t) {
     Point currentLocation = stars[id].location;

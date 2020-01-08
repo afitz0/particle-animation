@@ -164,7 +164,7 @@ class AnimatedStar extends AnimatedWidget {
               style: TextStyle(fontSize: starSize),
             )
           : Icon(
-              Icons.star,
+              Icons.ac_unit,
               color: Colors.white,
               size: starSize,
             ),

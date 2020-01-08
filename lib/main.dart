@@ -55,7 +55,7 @@ class ConfigState extends State<Config> {
               child: Text(
                   "Creates an animation that approximates an N-Body simulation."),
             ),
-
+ 
             // Point quantity?
             Row(
               children: <Widget>[
@@ -230,6 +230,7 @@ class ConfigState extends State<Config> {
                   },
                 ),
                 HolyCow(),
+                
               ],
             )
           ],
